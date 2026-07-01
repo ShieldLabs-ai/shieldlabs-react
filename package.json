@@ -1,0 +1,36 @@
+{
+  "name": "@shieldlabs/react",
+  "version": "0.0.0",
+  "description": "React bindings for the ShieldLabs browser loader.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["shieldlabs", "react", "device-intelligence", "visitor-identification", "risk-score"],
+  "repository": { "type": "git", "url": "git+https://github.com/ShieldLabs-ai/shieldlabs-react.git" },
+  "homepage": "https://shieldlabs.ai",
+  "bugs": { "url": "https://github.com/ShieldLabs-ai/shieldlabs-react/issues" },
+  "license": "MIT",
+  "publishConfig": { "access": "public" },
+  "peerDependencies": { "react": ">=17" },
+  "dependencies": { "@shieldlabs/js": "workspace:*" },
+  "devDependencies": {
+    "react": "^18.2.0",
+    "@types/react": "^18.2.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0"
+  }
+}
