@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test (Node ${{ matrix.node-version }}, React ${{ matrix.react }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20, 22, 24]
+        react: [18, 19]
+    defaults:
+      run:
+        working-directory: shieldlabs-react
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          path: shieldlabs-react
+          persist-credentials: false
+      # @shieldlabs-ai/js is not on npm yet, so it is built from its repository next to this one.
+      - uses: actions/checkout@v5
+        with:
+          repository: ShieldLabs-ai/shieldlabs-js
+          ref: main
+          path: shieldlabs-js
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+          cache-dependency-path: |
+            shieldlabs-react/package-lock.json
+            shieldlabs-js/package-lock.json
+      - name: Build and pack @shieldlabs-ai/js
+        working-directory: shieldlabs-js
+        run: |
+          npm ci
+          npm run build
+          npm pack
+      - run: npm ci
+      - name: Install the packed @shieldlabs-ai/js and React ${{ matrix.react }}
+        env:
+          REACT_MAJOR: ${{ matrix.react }}
+        run: |
+          set -- ../shieldlabs-js/shieldlabs-ai-js-*.tgz
+          if [ "$REACT_MAJOR" = "18" ]; then
+            set -- "$@" react@18 react-dom@18 @types/react@18 @types/react-dom@18
+          fi
+          npm install --no-save "$@"
+          node -p "'React ' + require('react/package.json').version"
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test -- --coverage
+      - run: npm run build
+
+  example-vite:
+    name: Vite example
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: shieldlabs-react
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          path: shieldlabs-react
+          persist-credentials: false
+      - uses: actions/checkout@v5
+        with:
+          repository: ShieldLabs-ai/shieldlabs-js
+          ref: main
+          path: shieldlabs-js
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            shieldlabs-react/package-lock.json
+            shieldlabs-js/package-lock.json
+      - name: Build and pack @shieldlabs-ai/js
+        working-directory: shieldlabs-js
+        run: |
+          npm ci
+          npm run build
+          npm pack
+      - run: npm ci
+      - run: npm install --no-save ../shieldlabs-js/shieldlabs-ai-js-*.tgz
+      - run: npm run build
+      - run: npm pack
+      - name: Build examples/vite against both packed packages
+        working-directory: shieldlabs-react/examples/vite
+        run: |
+          npm install --no-save --no-package-lock ../../shieldlabs-ai-react-*.tgz ../../../shieldlabs-js/shieldlabs-ai-js-*.tgz
+          npm run build
