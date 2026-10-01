@@ -1,0 +1,67 @@
+name: Release
+
+# Publishes @shieldlabs-ai/react to npm when a maintainer pushes a tag such as v1.0.0.
+# Needs the NPM_TOKEN repository secret. Safe to re-run: a version that is already on npm is skipped.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check and pack
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - name: Check that the tag matches package.json
+        run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
+      - run: npm ci
+      # Fails until @shieldlabs-ai/js is on npm: publish it first, then re-run this workflow.
+      - name: Install the published @shieldlabs-ai/js
+        run: npm install --no-save "@shieldlabs-ai/js@$(node -p "require('./package.json').peerDependencies['@shieldlabs-ai/js']")"
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test -- --coverage
+      - run: npm run build
+      - run: npm pack
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package
+          path: shieldlabs-ai-react-*.tgz
+          if-no-files-found: error
+
+  publish:
+    name: Publish to npm
+    needs: check
+    runs-on: ubuntu-latest
+    # Add required reviewers to this environment in the repository settings to approve each release.
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: package
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - name: Publish, unless this version is already on npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          if [ "$(npm view "@shieldlabs-ai/react@$version" version 2>/dev/null)" = "$version" ]; then
+            echo "@shieldlabs-ai/react@$version is already on npm."
+          else
+            npm publish "./shieldlabs-ai-react-$version.tgz" --provenance --access public
+          fi

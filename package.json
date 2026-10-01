@@ -1,36 +1,86 @@
 {
-  "name": "@shieldlabs/react",
-  "version": "0.0.0",
-  "description": "React bindings for the ShieldLabs browser loader.",
+  "name": "@shieldlabs-ai/react",
+  "version": "1.0.0",
+  "description": "React bindings for ShieldLabs device intelligence: a provider that loads the agent once and hooks that return a request ID for every identification.",
+  "keywords": [
+    "shieldlabs",
+    "react",
+    "react-hooks",
+    "device-intelligence",
+    "fraud-detection",
+    "risk-score",
+    "identification"
+  ],
+  "homepage": "https://docs.shieldlabs.ai",
+  "bugs": {
+    "url": "https://github.com/ShieldLabs-ai/shieldlabs-react/issues",
+    "email": "contact@shieldlabs.ai"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ShieldLabs-ai/shieldlabs-react.git"
+  },
+  "license": "MIT",
+  "author": "ShieldLabs Inc. <contact@shieldlabs.ai>",
   "type": "module",
+  "sideEffects": false,
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
   },
-  "files": ["dist", "README.md", "LICENSE"],
-  "sideEffects": false,
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
-    "typecheck": "tsc --noEmit"
+    "prebuild": "node scripts/check-core.mjs",
+    "build": "tsup",
+    "pretypecheck": "node scripts/check-core.mjs",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.build.json",
+    "prelint": "node scripts/check-core.mjs",
+    "lint": "eslint .",
+    "pretest": "npm run build",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build"
   },
-  "keywords": ["shieldlabs", "react", "device-intelligence", "visitor-identification", "risk-score"],
-  "repository": { "type": "git", "url": "git+https://github.com/ShieldLabs-ai/shieldlabs-react.git" },
-  "homepage": "https://shieldlabs.ai",
-  "bugs": { "url": "https://github.com/ShieldLabs-ai/shieldlabs-react/issues" },
-  "license": "MIT",
-  "publishConfig": { "access": "public" },
-  "peerDependencies": { "react": ">=17" },
-  "dependencies": { "@shieldlabs/js": "workspace:*" },
+  "peerDependencies": {
+    "@shieldlabs-ai/js": "^1.0.0",
+    "react": "^18.0.0 || ^19.0.0"
+  },
   "devDependencies": {
-    "react": "^18.2.0",
-    "@types/react": "^18.2.0",
-    "tsup": "^8.0.0",
-    "typescript": "^5.4.0"
+    "@eslint/js": "~9.39.5",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitest/coverage-v8": "~3.2.7",
+    "eslint": "~9.39.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "happy-dom": "^20.14.5",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "tsup": "^8.5.1",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.71.0",
+    "vitest": "~3.2.7"
   }
 }
