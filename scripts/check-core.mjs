@@ -18,11 +18,9 @@ if (typeof version !== 'string' || !version.startsWith('1.')) {
   console.error(
     [
       '@shieldlabs-ai/react needs @shieldlabs-ai/js 1.x, a peer dependency. ' + found,
-      'Until @shieldlabs-ai/js is on npm, build a pack from a working copy of shieldlabs-js next to this',
-      'repository and install it (repeat the install after every npm ci):',
+      'Install the published peer from this repository root (repeat after every npm ci):',
       '',
-      '  (cd ../shieldlabs-js && npm ci && npm run build && npm pack)',
-      '  npm install --no-save ../shieldlabs-js/shieldlabs-ai-js-1.0.0.tgz',
+      "  npm install --no-save --legacy-peer-deps=false '@shieldlabs-ai/js@^1.0.0'",
       '',
       'See CONTRIBUTING.md.',
     ].join('\n'),
