@@ -25,7 +25,7 @@ jobs:
         with:
           path: shieldlabs-react
           persist-credentials: false
-      # @shieldlabs-ai/js is not on npm yet, so it is built from its repository next to this one.
+      # Test against the loader built from its main branch as well as this checkout's changes.
       - uses: actions/checkout@v5
         with:
           repository: ShieldLabs-ai/shieldlabs-js

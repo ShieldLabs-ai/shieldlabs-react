@@ -496,10 +496,12 @@ clean. Calling a hook outside `ShieldLabsProvider` throws an `Error` that names 
 
 ## Development
 
+From the repository root, install the development tools and the published loader. No sibling
+repository is required. Repeat the loader install after each `npm ci`.
+
 ```bash
 npm ci
-# Until @shieldlabs-ai/js is on npm, install a local pack of it (see CONTRIBUTING.md):
-npm install --no-save ../shieldlabs-js/shieldlabs-ai-js-1.0.0.tgz
+npm install --no-save --legacy-peer-deps=false '@shieldlabs-ai/js@^1.0.0'
 npm run typecheck
 npm run lint
 npm test -- --coverage   # builds first, then runs the tests
