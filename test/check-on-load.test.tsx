@@ -120,7 +120,7 @@ describe('checkOnLoad', () => {
     expect(check).not.toHaveBeenCalled();
 
     // It stays skipped: checkOnLoad runs at most once per provider mount.
-    running.resolve({ requestId: 'cf3a4b5c-6d7e-4f8a-9b9c-0d1e2f3a4b5c', userId: null });
+    running.resolve({ identificationId: 'cf3a4b5c-6d7e-4f8a-9b9c-0d1e2f3a4b5c', userId: null });
     await flush();
     expect(check).not.toHaveBeenCalled();
   });

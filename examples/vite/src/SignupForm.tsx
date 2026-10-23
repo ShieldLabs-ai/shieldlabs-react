@@ -38,13 +38,13 @@ export function SignupForm() {
     const data = new FormData(form);
     setSubmitting(true);
 
-    let requestId: string | null = null;
+    let identificationId: string | null = null;
     try {
       // One identification per submission: the early one while it is fresh, otherwise a new one.
       // When the agent could not load at first, identify() tries to load it again (it resolves null
       // instead of rejecting).
       const result = early.current ? await early.current.take() : await identify();
-      requestId = result?.requestId ?? null;
+      identificationId = result?.identificationId ?? null;
     } catch (reason) {
       // Without an identification your server treats the signup as unverified.
       setMessage(describe(reason));
@@ -55,12 +55,12 @@ export function SignupForm() {
       const response = await fetch('/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: data.get('email'), password: data.get('password'), requestId }),
+        body: JSON.stringify({ email: data.get('email'), password: data.get('password'), identificationId }),
       });
       setMessage(
         response.ok
           ? 'Account created.'
-          : `Your server answered ${String(response.status)}. It would receive requestId ${requestId ?? '(none)'}.`,
+          : `Your server answered ${String(response.status)}. It would receive identificationId ${identificationId ?? '(none)'}.`,
       );
     } catch (reason) {
       setMessage(`The signup request failed: ${String(reason)}`);

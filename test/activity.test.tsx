@@ -130,12 +130,12 @@ describe.skipIf(!Activity)('inside a hidden <Activity>', () => {
     expect(view.value.isLoading).toBe(true);
 
     view.hide();
-    running.resolve({ requestId: REQUEST_ID, userId: USER_HID });
+    running.resolve({ identificationId: REQUEST_ID, userId: USER_HID });
     await flush();
 
     view.show();
     await flush();
-    expect(view.value).toMatchObject({ result: { requestId: REQUEST_ID, userId: USER_HID }, isLoading: false, error: null });
+    expect(view.value).toMatchObject({ result: { identificationId: REQUEST_ID, userId: USER_HID }, isLoading: false, error: null });
     // Showing the component again is not a new mount: runOnMount does not identify again.
     expect(identify).toHaveBeenCalledTimes(1);
   });
@@ -189,8 +189,8 @@ describe.skipIf(!Activity)('inside a hidden <Activity>', () => {
     view.show();
     expect(view.value).toMatchObject({ result: null, isLoading: true, error: null });
 
-    running.resolve({ requestId: REQUEST_ID, userId: null });
+    running.resolve({ identificationId: REQUEST_ID, userId: null });
     await flush();
-    expect(view.value).toMatchObject({ result: { requestId: REQUEST_ID }, isLoading: false });
+    expect(view.value).toMatchObject({ result: { identificationId: REQUEST_ID }, isLoading: false });
   });
 });

@@ -19,8 +19,8 @@ import {
 
 describe('public types', () => {
   it('give the browser only the request ID and the User HID', () => {
-    expectTypeOf<keyof IdentifyResult>().toEqualTypeOf<'requestId' | 'userId'>();
-    expectTypeOf<IdentifyResult['requestId']>().toEqualTypeOf<string>();
+    expectTypeOf<keyof IdentifyResult>().toEqualTypeOf<'identificationId' | 'userId'>();
+    expectTypeOf<IdentifyResult['identificationId']>().toEqualTypeOf<string>();
     expectTypeOf<IdentifyResult['userId']>().toEqualTypeOf<string | null>();
   });
 
