@@ -1,7 +1,7 @@
 # React and Vite example
 
 A signup form in React. `ShieldLabsProvider` loads the ShieldLabs agent once, the form starts an
-identification on the user's first interaction with it, and the submit handler sends the `requestId`
+identification on the user's first interaction with it, and the submit handler sends the `identificationId`
 to your backend with the signup request.
 
 `src/SignupForm.tsx` gets the loaded agent with `getAgent()` from `useShieldLabs()` and calls
@@ -23,8 +23,8 @@ npm run dev
 ```
 
 Open the URL Vite prints (for example <http://localhost:5173>). The form posts JSON to
-`/api/signup`: point it at your server, which reads the verdict for `requestId` with a ShieldLabs
-server SDK (for example `identifications.get(requestId)` in `@shieldlabs-ai/node`).
+`/api/signup`: point it at your server, which reads the verdict for `identificationId` with a ShieldLabs
+server SDK (for example `identifications.get(identificationId)` in `@shieldlabs-ai/node`).
 
 ShieldLabs accepts identifications only from registered domains. On `localhost` the request ID
 still reaches the page, but no identification is recorded. Serve the example from a registered

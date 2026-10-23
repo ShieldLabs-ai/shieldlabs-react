@@ -12,7 +12,7 @@ export const OTHER_USER_HID = '60303ae22b998861bce3b28f33eec1be758a213c86c93c076
 let counter = 0;
 
 /** UUIDv4-shaped request IDs, unique within a test run. */
-export function nextRequestId(): string {
+export function nextIdentificationId(): string {
   counter += 1;
   return '6f1c2a9e-7b3d-4c5e-8f90-' + counter.toString(16).padStart(12, '0');
 }
@@ -34,7 +34,7 @@ export function deferred<T>(): Deferred<T> {
 }
 
 function answer(options?: IdentifyOptions): Promise<IdentifyResult> {
-  return Promise.resolve({ requestId: nextRequestId(), userId: options?.userId ?? null });
+  return Promise.resolve({ identificationId: nextIdentificationId(), userId: options?.userId ?? null });
 }
 
 /**

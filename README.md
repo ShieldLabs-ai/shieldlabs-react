@@ -19,8 +19,8 @@ that contains it).
 ## How it fits
 
 1. **Browser.** `ShieldLabsProvider` loads the agent, and `useIdentify()` runs an identification for
-   a protected action. The page receives a `requestId`.
-2. **Your backend.** It receives the `requestId` with the protected action (signup, login,
+   a protected action. The page receives a `identificationId`.
+2. **Your backend.** It receives the `identificationId` with the protected action (signup, login,
    checkout) and reads the verdict for it from the History API with a ShieldLabs server SDK, or
    receives it in a signed `identification.scored` webhook.
 3. **Decision.** Your backend acts on the Risk Score (bands: trusted 0-29, suspicious 30-59,
@@ -37,7 +37,7 @@ and device ID are read on your server, with one of the server SDKs:
 
 The `identification.scored` webhook is delivered once per identification today (1-second timeout,
 no retries). Use the History API when you need a guaranteed read, and make webhook handlers
-idempotent on `data.request_id`, because future retries will resend identical bytes.
+idempotent on `data.identification_id`, because future retries will resend identical bytes.
 
 ## Install
 
@@ -79,7 +79,7 @@ createRoot(document.getElementById('root')!).render(
 );
 ```
 
-Run an identification when the user submits a protected action, and send the `requestId` with it:
+Run an identification when the user submits a protected action, and send the `identificationId` with it:
 
 ```tsx
 // SignupForm.tsx
@@ -98,7 +98,7 @@ export function SignupForm() {
     await fetch('/api/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, requestId: result?.requestId ?? null }),
+      body: JSON.stringify({ email, identificationId: result?.identificationId ?? null }),
     });
   }
 
@@ -114,8 +114,8 @@ export function SignupForm() {
 `identify()` never rejects: it resolves the result, or `null` with the reason in `error`. A second
 submit while the identification runs gets the same one, so a double click costs one identification.
 
-On your server, read the verdict for `requestId` with a server SDK, for example
-`identifications.get(requestId)` in [`@shieldlabs-ai/node`](https://github.com/ShieldLabs-ai/shieldlabs-node),
+On your server, read the verdict for `identificationId` with a server SDK, for example
+`identifications.get(identificationId)` in [`@shieldlabs-ai/node`](https://github.com/ShieldLabs-ai/shieldlabs-node),
 which waits until the identification has been scored. The History row appears about 1-3 seconds
 after `identify()` resolves and can be refined for up to about 10 seconds as follow-up checks
 finish, so starting the identification when the user begins the action (see
@@ -129,7 +129,7 @@ one protected action.
 > identification early instead (see [Protect a form](#protect-a-form)).
 
 > **Test on a registered domain.** ShieldLabs records identifications only for the domains
-> registered in your account. On `localhost` the page still receives a `requestId`, but the
+> registered in your account. On `localhost` the page still receives a `identificationId`, but the
 > identification is rejected with `401` and your backend never finds it. Test on a development
 > domain with its own keys, as described in [Environments](https://docs.shieldlabs.ai/setup/environments).
 
@@ -180,7 +180,7 @@ export function SignupForm() {
     await fetch('/api/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, requestId: result?.requestId ?? null }),
+      body: JSON.stringify({ email, identificationId: result?.identificationId ?? null }),
     });
   }
 
@@ -194,7 +194,7 @@ export function SignupForm() {
 ```
 
 For a classic full-page post, put the request ID in a hidden field
-(`<input type="hidden" name="requestId" />` in a `<form method="post" action="/signup">`) and submit
+(`<input type="hidden" name="identificationId" />` in a `<form method="post" action="/signup">`) and submit
 the form yourself:
 
 ```tsx
@@ -202,7 +202,7 @@ async function onSubmit(event: SyntheticEvent<HTMLFormElement>) {
   event.preventDefault();
   const form = event.currentTarget;
   const result = await early.current?.take().catch(() => null);
-  (form.elements.namedItem('requestId') as HTMLInputElement).value = result?.requestId ?? '';
+  (form.elements.namedItem('identificationId') as HTMLInputElement).value = result?.identificationId ?? '';
   form.submit();
 }
 ```
@@ -252,7 +252,7 @@ do not run it again; a new mount of the component does. With `autoLoad={false}`,
 itself the protected step, never in a layout, a list item or a component that mounts on every route.
 
 `result` is one identification, and one identification authorizes one protected action: send its
-`requestId` with a single request, within your freshness window (5 minutes in the examples). Your
+`identificationId` with a single request, within your freshness window (5 minutes in the examples). Your
 server rejects a request ID it has seen before or one that is too old. For every later action (a
 retry after a declined card, a second submit, a user who comes back after a break), call
 `identify()` again. For form submits, `identify()` in the submit handler, as in the quick start, is
@@ -263,8 +263,8 @@ function RecoveryStep({ userHid }: { userHid: string }) {
   const { result, isLoading } = useIdentify({ userId: userHid, runOnMount: true });
   if (isLoading) return <p>Loading</p>;
   // The request ID goes with the one request that loads the recovery options. Without a result (the
-  // identification failed), that request is sent without a requestId.
-  return <RecoveryOptions requestId={result?.requestId ?? null} />;
+  // identification failed), that request is sent without a identificationId.
+  return <RecoveryOptions identificationId={result?.identificationId ?? null} />;
 }
 ```
 
@@ -305,7 +305,7 @@ You do not need to wait for `'ready'`: `identify()` and `check()` called while t
 for it. The call's `timeout` (default: the provider `timeout`, 10 seconds) covers the whole call:
 that wait and then the agent's answer, which gets only the time that is left. Never block a
 protected action on the status. When the agent cannot load (a content blocker, a network error),
-send the action without a `requestId`; your backend treats it as unverified. A failed or timed-out
+send the action without a `identificationId`; your backend treats it as unverified. A failed or timed-out
 load is tried again by the next `identify()`, `check()`, `getAgent()` or `load()`, and the status
 follows. When the provider props are invalid (for example a missing `publicKey` because an
 environment variable is not set) or the page is not a secure context, the provider also logs a
@@ -382,7 +382,7 @@ calls wait for the agent as usual.
 Until then, the rest of the app works unchanged and nothing waits for consent:
 
 - `identify()` from `useIdentify()` resolves `null` at once, with a `not_initialized` error, so
-  forms go out without a `requestId` and your server treats them as unverified. `runOnMount` ends
+  forms go out without a `identificationId` and your server treats them as unverified. `runOnMount` ends
   the same way and does not run again by itself after `load()`.
 - `useShieldLabs().identify()` rejects with `not_initialized`, and `check()` resolves `null`.
 - `getAgent()` waits, with no timeout of its own, so a form set up for early identification (see
@@ -464,7 +464,7 @@ changes), so they are safe in effect dependencies.
 
 | Field | Type | Description |
 |---|---|---|
-| `requestId` | `string` | Send it to your backend with the protected action |
+| `identificationId` | `string` | Send it to your backend with the protected action |
 | `userId` | `string \| null` | The User HID used, `null` for anonymous checks |
 
 ## Errors and retries
@@ -480,7 +480,7 @@ Every error is a `ShieldLabsError`. `useIdentify().identify()` stores it in `err
 | `timeout` | The agent did not load, or an agent call did not answer, within the timeout (default 10 seconds) | Continue without an identification. A load that timed out keeps running, and the next call uses it once it arrives |
 | `not_initialized` | `identify()` only: the agent did not start an identification, for example because another one is running in this or another tab, or the provider has `autoLoad={false}` and `load()` has not been called. `check()` resolves `null` instead | Retry once later, or continue without an identification |
 
-Whenever there is no identification, send the protected action anyway without a `requestId`: your
+Whenever there is no identification, send the protected action anyway without a `identificationId`: your
 backend treats a missing identification as unverified (for example step-up or review), never as
 clean. Calling a hook outside `ShieldLabsProvider` throws an `Error` that names the hook.
 

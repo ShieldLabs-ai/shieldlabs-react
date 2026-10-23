@@ -44,7 +44,7 @@ All notable changes to `@shieldlabs-ai/react` are documented in this file. The f
 - ESM, CommonJS and TypeScript declarations with a `"use client"` directive. Peer dependencies:
   `react` 18 or 19 and `@shieldlabs-ai/js` 1.x.
 - `examples/vite`: a signup form that starts an identification on the first interaction with
-  `identifyOnInteraction()` and sends the `requestId` with the submit.
+  `identifyOnInteraction()` and sends the `identificationId` with the submit.
 
 ### Removed
 

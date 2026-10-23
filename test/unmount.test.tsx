@@ -73,7 +73,7 @@ describe('after unmount', () => {
     expect(before).toBeGreaterThan(0);
 
     unmountNow(view);
-    running.resolve({ requestId: '4f5a6b7c-8d9e-4f0a-9b1c-2d3e4f5a6b7c', userId: null });
+    running.resolve({ identificationId: '4f5a6b7c-8d9e-4f0a-9b1c-2d3e4f5a6b7c', userId: null });
     await flush();
     expect(updates.afterUnmount).toBe(0);
   });

@@ -171,12 +171,12 @@ function SignupForm() {
     event.preventDefault();
     const form = event.currentTarget;
     const result = await handle.current?.take().catch(() => null);
-    (form.elements.namedItem('requestId') as HTMLInputElement).value = result?.requestId ?? '';
+    (form.elements.namedItem('identificationId') as HTMLInputElement).value = result?.identificationId ?? '';
   }
 
   return (
     <form ref={formRef} aria-label="signup" onSubmit={(event) => void onSubmit(event)}>
-      <input type="hidden" name="requestId" data-testid="requestId" />
+      <input type="hidden" name="identificationId" data-testid="identificationId" />
       <button type="submit">Sign up</button>
     </form>
   );
@@ -205,7 +205,7 @@ describe('early identification with getAgent() and identifyOnInteraction()', () 
     fireEvent.submit(form);
     await flush();
     expect(handle.take).toHaveBeenCalledTimes(1);
-    expect(screen.getByTestId<HTMLInputElement>('requestId').value).toMatch(/^[0-9a-f-]{36}$/);
+    expect(screen.getByTestId<HTMLInputElement>('identificationId').value).toMatch(/^[0-9a-f-]{36}$/);
 
     view.unmount();
     expect(handle.dispose).toHaveBeenCalledTimes(1);
@@ -217,7 +217,7 @@ describe('early identification with getAgent() and identifyOnInteraction()', () 
     await flush();
     fireEvent.submit(screen.getByRole('form', { name: 'signup' }));
     await flush();
-    expect(screen.getByTestId<HTMLInputElement>('requestId').value).toBe('');
+    expect(screen.getByTestId<HTMLInputElement>('identificationId').value).toBe('');
   });
 
   it('with autoLoad={false}, arms the form once load() has been called', async () => {

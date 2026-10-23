@@ -38,7 +38,7 @@ describe('useIdentify()', () => {
 
     await flush();
     const result = await identified;
-    expect(result).toEqual({ requestId: expect.any(String) as string, userId: null });
+    expect(result).toEqual({ identificationId: expect.any(String) as string, userId: null });
     expect(view.value).toMatchObject({ result, isLoading: false, error: null });
     expect(identify).toHaveBeenCalledTimes(1);
     expect(identify).toHaveBeenCalledWith({});
@@ -140,9 +140,9 @@ describe('useIdentify()', () => {
     });
     expect(view.value).toMatchObject({ result: null, isLoading: true, error: null });
 
-    pending.resolve({ requestId: '0b9f8e7d-6c5b-4a39-8281-7f6e5d4c3b2a', userId: null });
+    pending.resolve({ identificationId: '0b9f8e7d-6c5b-4a39-8281-7f6e5d4c3b2a', userId: null });
     await flush();
-    expect(view.value.result).toEqual({ requestId: '0b9f8e7d-6c5b-4a39-8281-7f6e5d4c3b2a', userId: null });
+    expect(view.value.result).toEqual({ identificationId: '0b9f8e7d-6c5b-4a39-8281-7f6e5d4c3b2a', userId: null });
 
     identify.mockRejectedValueOnce(new ShieldLabsError('timeout', 'The agent did not answer.'));
     await act(() => view.value.identify());
@@ -153,7 +153,7 @@ describe('useIdentify()', () => {
       void view.value.identify();
     });
     expect(view.value).toMatchObject({ result: null, isLoading: true, error: null });
-    next.resolve({ requestId: '5a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c8d', userId: null });
+    next.resolve({ identificationId: '5a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c8d', userId: null });
     await flush();
   });
 
@@ -171,14 +171,14 @@ describe('useIdentify()', () => {
     });
     await flush();
     expect(identify).toHaveBeenCalledTimes(2);
-    fast.resolve({ requestId: '1c2d3e4f-5a6b-4c7d-8e9f-0a1b2c3d4e5f', userId: null });
+    fast.resolve({ identificationId: '1c2d3e4f-5a6b-4c7d-8e9f-0a1b2c3d4e5f', userId: null });
     await flush();
-    expect(view.value.result?.requestId).toBe('1c2d3e4f-5a6b-4c7d-8e9f-0a1b2c3d4e5f');
+    expect(view.value.result?.identificationId).toBe('1c2d3e4f-5a6b-4c7d-8e9f-0a1b2c3d4e5f');
 
-    slow.resolve({ requestId: '2d3e4f5a-6b7c-4d8e-9f0a-1b2c3d4e5f6a', userId: null });
+    slow.resolve({ identificationId: '2d3e4f5a-6b7c-4d8e-9f0a-1b2c3d4e5f6a', userId: null });
     await flush();
-    await expect(first).resolves.toMatchObject({ requestId: '2d3e4f5a-6b7c-4d8e-9f0a-1b2c3d4e5f6a' });
-    expect(view.value.result?.requestId).toBe('1c2d3e4f-5a6b-4c7d-8e9f-0a1b2c3d4e5f');
+    await expect(first).resolves.toMatchObject({ identificationId: '2d3e4f5a-6b7c-4d8e-9f0a-1b2c3d4e5f6a' });
+    expect(view.value.result?.identificationId).toBe('1c2d3e4f-5a6b-4c7d-8e9f-0a1b2c3d4e5f');
   });
 
   it('reset() clears result and error, and a running call no longer updates the state', async () => {
@@ -201,9 +201,9 @@ describe('useIdentify()', () => {
     act(() => {
       view.value.reset();
     });
-    pending.resolve({ requestId: '3e4f5a6b-7c8d-4e9f-8a1b-2c3d4e5f6a7b', userId: null });
+    pending.resolve({ identificationId: '3e4f5a6b-7c8d-4e9f-8a1b-2c3d4e5f6a7b', userId: null });
     await flush();
-    await expect(identified).resolves.toMatchObject({ requestId: '3e4f5a6b-7c8d-4e9f-8a1b-2c3d4e5f6a7b' });
+    await expect(identified).resolves.toMatchObject({ identificationId: '3e4f5a6b-7c8d-4e9f-8a1b-2c3d4e5f6a7b' });
     expect(view.value).toMatchObject({ result: null, isLoading: false, error: null });
   });
 
@@ -280,7 +280,7 @@ describe('useIdentify() while an identification runs', () => {
     expect(identify).toHaveBeenCalledTimes(1);
     expect(view.value.isLoading).toBe(true);
 
-    const result = { requestId: '8b9c0d1e-2f3a-4b4c-9d5e-6f7a8b9c0d1e', userId: USER_HID };
+    const result = { identificationId: '8b9c0d1e-2f3a-4b4c-9d5e-6f7a8b9c0d1e', userId: USER_HID };
     running.resolve(result);
     await flush();
     await expect(first).resolves.toBe(result);
@@ -361,7 +361,7 @@ describe('useIdentify() while an identification runs', () => {
     // The agent gets the options of the first call; without a timeout it applies the same default.
     expect(identify).toHaveBeenCalledWith({ userId: USER_HID });
 
-    const result = { requestId: 'cf3a4b5c-6d7e-4f80-9b9c-0d1e2f3a4b5c', userId: USER_HID };
+    const result = { identificationId: 'cf3a4b5c-6d7e-4f80-9b9c-0d1e2f3a4b5c', userId: USER_HID };
     running.resolve(result);
     await flush();
     await expect(first).resolves.toBe(result);
@@ -517,7 +517,7 @@ describe('useIdentify() while an identification runs', () => {
     const result = await fresh;
     expect(view.value).toMatchObject({ result, isLoading: false, error: null });
 
-    stale.resolve({ requestId: '9c0d1e2f-3a4b-4c5d-8e6f-7a8b9c0d1e2f', userId: null });
+    stale.resolve({ identificationId: '9c0d1e2f-3a4b-4c5d-8e6f-7a8b9c0d1e2f', userId: null });
     await flush();
     expect(view.value.result).toBe(result);
   });
@@ -541,11 +541,11 @@ describe('useIdentify() while an identification runs', () => {
     await flush();
     expect(identify).toHaveBeenCalledTimes(2);
 
-    other.resolve({ requestId: 'ad1e2f3a-4b5c-4d6e-9f7a-8b9c0d1e2f3a', userId: OTHER_USER_HID });
+    other.resolve({ identificationId: 'ad1e2f3a-4b5c-4d6e-9f7a-8b9c0d1e2f3a', userId: OTHER_USER_HID });
     await flush();
     expect(view.value).toMatchObject({ result: null, isLoading: true });
 
-    mine.resolve({ requestId: 'be2f3a4b-5c6d-4e7f-8a8b-9c0d1e2f3a4b', userId: USER_HID });
+    mine.resolve({ identificationId: 'be2f3a4b-5c6d-4e7f-8a8b-9c0d1e2f3a4b', userId: USER_HID });
     await flush();
     expect(view.value).toMatchObject({ result: { userId: USER_HID }, isLoading: false, error: null });
   });
